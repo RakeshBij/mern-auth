@@ -4,7 +4,7 @@ import avatar from "../assets/profile.png";
 import styles from "../styles/Username.module.css";
 import { Toaster } from "react-hot-toast";
 import { useFormik } from "formik";
-import { usernameValidate } from "../helper/helper";
+import { usernameValidate } from "../helper/validate";
 
 const Username = () => {
   const navigate = useNavigate();

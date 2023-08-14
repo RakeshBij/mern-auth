@@ -44,3 +44,19 @@ function passwordVerify(error = {}, values) {
 
   return error;
 }
+
+// Validate paswword Reset page
+
+export async function resetPasswordValidation(values) {
+  const errors = passwordVerify({}, values);
+
+  if (values.password !== values.confirm_pwd) {
+    errors.exist = toast.error(
+      "Password and confirm password should be same!!!"
+    );
+  }
+
+  return errors;
+}
+
+// Validate Password
