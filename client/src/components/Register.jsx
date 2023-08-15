@@ -6,6 +6,7 @@ import { useFormik } from "formik";
 import { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import convertToBase64 from "../helper/convert";
+import { registerValidation } from "../helper/validate";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -24,6 +25,7 @@ const Register = () => {
       username: "dummy",
       password: "admin@123",
     },
+    validate: registerValidation,
     validateOnBlur: false,
     validateOnChange: false,
     onSubmit: async (values) => {

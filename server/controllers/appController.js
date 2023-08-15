@@ -5,6 +5,20 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+// Miiddle ware to verify user
+export async function verifyUser(req, res, next) {
+  try {
+    // if reuquest method is "GET" then return req.query (url se parameter lena), otherwise (for POST and PUT request) get the data from req.body
+    const { username } = req.method == "GET" ? req.query : req.body;
+
+    const exist = await UserModel.findOne({ username });
+    if (!exist) return res.status(404).send({ error: "Can't find User!" });
+    next();
+  } catch (error) {
+    return res.status(404).send({ error: "Authentication error" });
+  }
+}
+
 /** POST: http://localhost:8080/api/register 
  * @param : {
   "username" : "example123",
@@ -47,6 +61,7 @@ export async function register(req, res) {
     // save the user
 
     user.save();
+    console.log(user);
 
     return res.status(200).send({ msg: "User registered succesfully" });
   } catch (error) {
@@ -88,11 +103,7 @@ export async function login(req, res) {
         expiresIn: "24h",
       }
     );
-    //  return res.status(200).send({
-    //    msg: "Login Successful...!",
-    //    username: user.username,
-    //    token,
-    //  });
+
     return res
       .status(200)
       .send({ msg: "login succesfull ✅", username: user.username, token });
@@ -103,9 +114,27 @@ export async function login(req, res) {
   }
 }
 
-/** GET: http://localhost:8080/api/user/example123 */
+/** GET: http://localhost:8080/api/user/example123/12 */
 export async function getUser(req, res) {
-  res.json("get user route");
+  const { username } = req.params;
+
+  try {
+    if (!username) return res.status(501).send({ error: "Invalid Username" });
+
+    UserModel.findOne({ username }, function (err, user) {
+      if (err) return res.status(500).send({ err });
+      if (!user)
+        return res.status(501).send({ error: "Couldn't Find the User" });
+
+      /** remove password from user */
+      // mongoose return unnecessary data with object so convert it into json
+      const { password, ...rest } = Object.assign({}, user.toJSON());
+
+      return res.status(201).send(rest);
+    });
+  } catch (error) {
+    return res.status(404).send({ error: "Cannot Find User Data" });
+  }
 }
 
 /** PUT: http://localhost:8080/api/updateuser 
@@ -119,7 +148,25 @@ body: {
 }
 */
 export async function updateUser(req, res) {
-  res.json("Update user route");
+  try {
+    // const id = req.query.id;
+    const { userId } = req.user;
+
+    if (userId) {
+      const body = req.body;
+
+      // update the data
+      UserModel.updateOne({ _id: userId }, body, function (err, data) {
+        if (err) throw err;
+
+        return res.status(201).send({ msg: "Record Updated...!" });
+      });
+    } else {
+      return res.status(401).send({ error: "User Not Found...!" });
+    }
+  } catch (error) {
+    return res.status(401).send({ error });
+  }
 }
 
 /** GET: http://localhost:8080/api/generateOTP */
