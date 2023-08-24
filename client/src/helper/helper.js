@@ -1,5 +1,11 @@
 import axios from "axios";
-axios.defaults.baseURL = process.env.REACT_APP_SERVER_DOMAIN;
+
+// axios.defaults.baseURL = process.env.REACT_APP_SERVER_DOMAIN;
+// axios.defaults.baseURL = REACT_APP_SERVER_DOMAIN;
+// const BASE_URL = window.env.REACT_APP_SERVER_DOMAIN;
+
+// axios.defaults.baseURL = BASE_URL;
+
 // Making api call
 
 // Define the authenticate function

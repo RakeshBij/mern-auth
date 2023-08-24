@@ -5,18 +5,23 @@ import styles from "../styles/Username.module.css";
 import { Toaster } from "react-hot-toast";
 import { useFormik } from "formik";
 import { usernameValidate } from "../helper/validate";
+import { useAuthStore } from "../store/store";
 
 const Username = () => {
   const navigate = useNavigate();
+
+  const setUsername = useAuthStore((state) => state.setUsername);
 
   const formik = useFormik({
     initialValues: { username: "" },
     // I want to vaildate the form only when i click the button
     validate: usernameValidate,
-    validateOnBlur: false,
     validateOnChange: false,
+    validateOnBlur: false,
     onSubmit: async (values) => {
       console.log(values);
+      setUsername(values.setUsername);
+      navigate("/password");
     },
   });
   return (
