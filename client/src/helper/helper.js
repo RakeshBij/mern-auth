@@ -1,4 +1,5 @@
 import axios from "axios";
+import jwt_decode from "jwt-decode";
 
 // axios.defaults.baseURL = process.env.REACT_APP_SERVER_DOMAIN;
 // axios.defaults.baseURL = REACT_APP_SERVER_DOMAIN;
@@ -17,6 +18,14 @@ export async function authenticate(username) {
     // If there's an error (like if the username doesn't exist), return an error message
     return { error: "Username doesn't exist...!" };
   }
+}
+
+/** To get username from Token */
+export async function getUsername() {
+  const token = localStorage.getItem("token");
+  if (!token) return Promise.reject("Cannot find Token");
+  let decode = jwt_decode(token);
+  return decode;
 }
 
 // getuser details (using this funcion will give use all the details of the user)

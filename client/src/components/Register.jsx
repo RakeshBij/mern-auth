@@ -1,12 +1,13 @@
 import React, { useState } from "react";
-import styles from "../styles/Username.module.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import avatar from "../assets/profile.png";
+import toast, { Toaster } from "react-hot-toast";
 import { useFormik } from "formik";
-import { Toaster } from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
-import convertToBase64 from "../helper/convert";
 import { registerValidation } from "../helper/validate";
+import convertToBase64 from "../helper/convert";
+import { registerUser } from "../helper/helper";
+
+import styles from "../styles/Username.module.css";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -29,8 +30,19 @@ const Register = () => {
     validateOnBlur: false,
     validateOnChange: false,
     onSubmit: async (values) => {
+      // adding the profile value in values object
       values = await Object.assign(values, { profile: file || "" });
-      console.log(values);
+      let registerPromise = registerUser(values);
+      toast.promise(registerPromise, {
+        loading: "Creating...",
+        success: <b>Register Successfully...!</b>,
+        error: <b>Could not Register.</b>,
+      });
+
+      //  when the registerPromise is resolved then navigate the user to home route
+      registerPromise.then(function () {
+        navigate("/");
+      });
     },
   });
   return (

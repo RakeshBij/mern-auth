@@ -1,13 +1,20 @@
-import React from "react";
-import styles from "../styles/Username.module.css";
+import React, { useEffect } from "react";
+import toast, { Toaster } from "react-hot-toast";
 import { useFormik } from "formik";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
 import { resetPasswordValidation } from "../helper/validate";
+import { resetPassword } from "../helper/helper";
+import { useAuthStore } from "../store/store";
+import { useNavigate, Navigate } from "react-router-dom";
+import useFetch from "../hooks/fetch.hook";
+
+import styles from "../styles/Username.module.css";
 
 const Reset = () => {
   const navigate = useNavigate();
+
+  const { username } = useAuthStore((state) => state.auth);
+  const [{ isLoading, apiData, status, serverError }] =
+    useFetch("createResetSession");
 
   const formik = useFormik({
     initialValues: { password: "admin@123", confirm_pwd: "admin@123" },
@@ -15,9 +22,27 @@ const Reset = () => {
     validateOnBlur: false,
     validateOnChange: false,
     onSubmit: async (value) => {
-      console.log(value);
+      let resetPromise = resetPassword({ username, password: value.password });
+
+      toast.promise(resetPromise, {
+        loading: "Updating...",
+        success: <b>Reset Successfully...!</b>,
+        error: <b>Could not Reset!</b>,
+      });
+
+      resetPromise.then(function () {
+        navigate("/password");
+      });
     },
   });
+
+  if (isLoading) return <h1 className="text-2xl font-bold">isLoading</h1>;
+  if (serverError)
+    return <h1 className="text-xl text-red-500">{serverError.message}</h1>;
+  // this status comes from resetSession from back end, the reason for this is , if there is no status than no one will be able to access this route as they will be directed to the password route
+  if (status && status !== 201)
+    return <Navigate to={"/password"} replace={true}></Navigate>;
+
   return (
     <div className="container mx-auto">
       <Toaster position="top-center" reverseOrder={false}></Toaster>
